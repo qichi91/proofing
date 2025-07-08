@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=DEBUG
+      - MAX_FILE_SIZE=52428800  # 50MB
+      - MAX_FILES_COUNT=10
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:8080
+    volumes:
+      - ./backend/app:/app/app:ro  # 開発時のホットリロード用
+      - /tmp:/tmp  # 一時ファイル用
+    command: ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    
+  # 将来のフロントエンド用
+  # frontend:
+  #   build: 
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - REACT_APP_API_URL=http://localhost:8000
+  #   volumes:
+  #     - ./frontend/src:/app/src:ro
