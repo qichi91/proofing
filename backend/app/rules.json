@@ -1,0 +1,20 @@
+[
+    {
+        "id": "duplicate_particle",
+        "description": "助詞の重複を検出する",
+        "pattern": "(\p{Script=Hiragana}{1,2})\1",
+        "message": "助詞が重複しています: '{match}'"
+    },
+    {
+        "id": "redundant_expression",
+        "description": "冗長な表現を検出する",
+        "pattern": "(することができる)",
+        "message": "冗長な表現: '{match}'"
+    },
+    {
+        "id": "notation_variation",
+        "description": "表記ゆれを検出する",
+        "pattern": "(サーバ|サーバー)",
+        "message": "表記ゆれ: '{match}'"
+    }
+]

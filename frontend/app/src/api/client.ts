@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosResponse, AxiosError } from 'axios';
+
 import type { CheckResponse, HealthResponse, ConfigResponse } from '../types/api';
 
 // APIベースURL（環境変数から取得、デフォルトは開発環境のURL）

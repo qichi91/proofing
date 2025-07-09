@@ -9,10 +9,10 @@ class Settings:
     """アプリケーション設定クラス"""
     
     # ファイルサイズ制限（バイト）
-    MAX_FILE_SIZE: int = int(os.getenv("MAX_FILE_SIZE", 50 * 1024 * 1024))  # 50MB
+    MAX_FILE_SIZE: int = int(os.getenv("MAX_FILE_SIZE", 200 * 1024 * 1024))  # 50MB
     
     # 最大ファイル数
-    MAX_FILES_COUNT: int = int(os.getenv("MAX_FILES_COUNT", 10))
+    MAX_FILES_COUNT: int = int(os.getenv("MAX_FILES_COUNT", 100))
     
     # 一時ファイル保存ディレクトリ
     TEMP_DIR: str = os.getenv("TEMP_DIR", "/tmp")

@@ -12,8 +12,8 @@ interface FileUploaderProps {
 
 export const FileUploader: React.FC<FileUploaderProps> = ({
     onFilesSelected,
-    maxFiles = 10,
-    maxFileSize = 50 * 1024 * 1024, // 50MB
+    maxFiles = 100,
+    maxFileSize = 200 * 1024 * 1024, // 50MB
     supportedExtensions = ['.docx', '.doc', '.xlsx', '.xls', '.pdf', '.pptx', '.ppt'],
     isLoading = false,
 }) => {

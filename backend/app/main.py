@@ -3,8 +3,8 @@ import tempfile
 import traceback
 from typing import List
 from pathlib import Path
-
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 # import textract
@@ -154,6 +154,35 @@ async def check_documents(files: List[UploadFile] = File(...)):
         results=results
     )
 
+# 校正ルール取得API
+@app.get("/rules")
+async def get_rules():
+    rules_path = os.path.join(os.path.dirname(__file__), "rules.json")
+    try:
+        with open(rules_path, encoding="utf-8") as f:
+            rules = f.read()
+        return JSONResponse(content=rules, media_type="application/json")
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+# 校正ルール更新API
+@app.post("/rules")
+async def update_rules(request: Request):
+    rules_path = os.path.join(os.path.dirname(__file__), "rules.json")
+    try:
+        rules_json = await request.json()
+        # バリデーション: 配列であること
+        if not isinstance(rules_json, list):
+            return JSONResponse(content={"error": "ルールは配列形式で送信してください"}, status_code=400)
+        # 書き込み
+        with open(rules_path, "w", encoding="utf-8") as f:
+            import json
+            json.dump(rules_json, f, ensure_ascii=False, indent=2)
+        # ルールを即時反映（ProofreadingRulesインスタンスを再生成）
+        ProofreadingRules().load_external_rules()
+        return {"message": "ルールを更新しました"}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 def perform_proofreading_check(text: str) -> List[dict]:
     """

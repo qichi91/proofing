@@ -13,8 +13,8 @@ interface FileUploadProps {
 const FileUpload: React.FC<FileUploadProps> = ({
     onFilesSelected,
     disabled = false,
-    maxFiles = 10,
-    maxFileSize = 50 * 1024 * 1024, // 50MB
+    maxFiles = 100,
+    maxFileSize = 200 * 1024 * 1024, // 50MB
     acceptedFormats = ['.docx', '.doc', '.xlsx', '.xls', '.pdf', '.pptx', '.ppt'],
 }) => {
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);

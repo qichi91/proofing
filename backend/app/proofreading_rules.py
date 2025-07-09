@@ -6,26 +6,33 @@ import re
 from typing import List, Dict
 
 
+import json
+import os
+
 class ProofreadingRules:
-    """校正ルールクラス"""
-    
-    def __init__(self):
-        # 敬語の混在パターン
+    """校正ルールクラス（外部JSONルール対応）"""
+
+    def __init__(self, rules_path: str = None):
+        # デフォルトのルールファイルパス
+        if rules_path is None:
+            rules_path = os.path.join(os.path.dirname(__file__), "rules.json")
+        self.rules_path = rules_path
+        self.external_rules = []
+        self.load_external_rules()
+
+        # 既存のハードコーディングルールも残す（従来通り）
         self.dearu_patterns = [
             r'である[。、]',
             r'だ[。、]',
             r'〜た[。、]',
             r'〜る[。、]'
         ]
-        
         self.desumasu_patterns = [
             r'です[。、]',
             r'ます[。、]',
             r'ました[。、]',
             r'ません[。、]'
         ]
-        
-        # 技術文書でよく使われる表記ゆれパターン
         self.notation_variations = {
             'サーバー': ['サーバ'],
             'コンピューター': ['コンピュータ'],
@@ -37,8 +44,6 @@ class ProofreadingRules:
             'システム': ['system'],
             'プロセス': ['process']
         }
-        
-        # 冗長表現パターン
         self.redundant_expressions = [
             r'することができます',
             r'することが可能です',
@@ -49,13 +54,24 @@ class ProofreadingRules:
             r'最も最適',
             r'より一層'
         ]
-    
+
+    def load_external_rules(self):
+        """外部JSONルールを読み込む"""
+        try:
+            with open(self.rules_path, encoding="utf-8") as f:
+                self.external_rules = json.load(f)
+        except Exception as e:
+            self.external_rules = []
+            print(f"[ProofreadingRules] rules.jsonの読み込みに失敗: {e}")
+
     def check_all_rules(self, text: str, filename: str = "") -> List[Dict]:
-        """すべての校正ルールを適用してチェック"""
+        """すべての校正ルールを適用してチェック（外部+従来）"""
         issues = []
         lines = text.split('\n')
-        
         for line_num, line in enumerate(lines, 1):
+            # 外部JSONルール
+            issues.extend(self.check_external_rules(line, line_num))
+            # 従来のハードコーディングルール
             issues.extend(self.check_mixed_writing_style(line, line_num))
             issues.extend(self.check_notation_variations(line, line_num))
             issues.extend(self.check_redundant_expressions(line, line_num))
@@ -64,7 +80,32 @@ class ProofreadingRules:
             issues.extend(self.check_successive_words(line, line_num))
             issues.extend(self.check_sentence_length(line, line_num))
             issues.extend(self.check_katakana_consistency(line, line_num))
-        
+        return issues
+
+    def check_external_rules(self, text: str, line_num: int) -> List[Dict]:
+        """外部JSONルールによるチェック"""
+        issues = []
+        for rule in self.external_rules:
+            try:
+                pattern = rule.get("pattern")
+                if not pattern:
+                    continue
+                # re.UNICODE, re.MULTILINE, re.DOTALL で日本語対応
+                matches = list(re.finditer(pattern, text, re.UNICODE))
+                for m in matches:
+                    match_text = m.group(0)
+                    message = rule.get("message", "ルール違反: {match}").replace("{match}", match_text)
+                    issues.append({
+                        "type": rule.get("id", "external_rule"),
+                        "severity": "info",
+                        "line": line_num,
+                        "message": message,
+                        "rule": rule.get("id", "external_rule"),
+                        "suggestion": rule.get("description", "見直してください")
+                    })
+            except Exception as e:
+                # 無効な正規表現等はスキップ
+                print(f"[ProofreadingRules] ルール適用エラー: {e}")
         return issues
     
     def check_mixed_writing_style(self, text: str, line_num: int) -> List[Dict]:

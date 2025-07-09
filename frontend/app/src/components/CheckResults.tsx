@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FileCheckResult, CheckIssue, CheckResponse } from '../types/api';
+import type { CheckIssue, CheckResponse } from '../types/api';
 import './CheckResults.css';
 
 interface CheckResultsProps {
