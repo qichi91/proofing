@@ -36,6 +36,10 @@ proofing/
 ```bash
 # プロジェクトルートで
 docker-compose up --build
+
+# caddyなどのproxyサーバを利用する場合は
+# frontend/app/.env のVITE_API_BASE_URLを
+# バックエンドサーバのURLに変えてからbuildすること
 ```
 
 - フロントエンド: http://localhost:3000

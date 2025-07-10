@@ -106,72 +106,83 @@ const CheckResults: React.FC<CheckResultsProps> = ({
             </div>
 
             <div className="results-list">
-                {results.results.map((result, index) => (
-                    <div key={index} className={`result-card ${result.status}`}>
-                        <div className="result-header">
-                            <h3>{result.filename}</h3>
-                            <span className={`status-badge ${result.status}`}>
-                                {result.status === 'success' ? '✅ 成功' : '❌ エラー'}
-                            </span>
-                        </div>
+                {results.results.map((result, index) => {
+                    const [collapsed, setCollapsed] = React.useState(true);
 
-                        {result.status === 'success' && (
-                            <div className="file-stats">
-                                <div className="stat-item">
-                                    <span>文字数: {result.character_count}</span>
-                                </div>
-                                <div className="stat-item">
-                                    <span>行数: {result.line_count}</span>
-                                </div>
-                                <div className="stat-item">
-                                    <span>単語数: {result.word_count}</span>
-                                </div>
-                                <div className="stat-item">
-                                    <span>問題数: {result.issues.length}</span>
-                                </div>
+                    return (
+                        <div key={index} className={`result-card ${result.status}`}>
+                            <div className="result-header" style={{ cursor: 'pointer' }} onClick={() => setCollapsed(c => !c)}>
+                                <h3>{result.filename}</h3>
+                                <span className={`status-badge ${result.status}`}>
+                                    {result.status === 'success' ? '✅ 成功' : '❌ エラー'}
+                                </span>
+                                <span className="collapse-toggle" style={{ marginLeft: 'auto', fontSize: 18 }}>
+                                    {collapsed ? '▶' : '▼'}
+                                </span>
                             </div>
-                        )}
 
-                        {result.status === 'error' && result.error_message && (
-                            <div className="error-message">
-                                <p>エラー: {result.error_message}</p>
-                            </div>
-                        )}
-
-                        {result.issues.length > 0 && (
-                            <div className="issues-list">
-                                <h4>検出された問題</h4>
-                                {result.issues.map((issue, issueIndex) => (
-                                    <div key={issueIndex} className="issue-item">
-                                        <div className="issue-header">
-                                            <span
-                                                className="severity-icon"
-                                                style={{ color: getSeverityColor(issue.severity) }}
-                                            >
-                                                {getSeverityIcon(issue.severity)}
-                                            </span>
-                                            <span className="issue-type">{issue.type}</span>
-                                            <span className="issue-line">行 {issue.line}</span>
-                                        </div>
-                                        <div className="issue-message">{issue.message}</div>
-                                        {issue.suggestion && (
-                                            <div className="issue-suggestion">
-                                                💡 提案: {issue.suggestion}
+                            {!collapsed && (
+                                <>
+                                    {result.status === 'success' && (
+                                        <div className="file-stats">
+                                            <div className="stat-item">
+                                                <span>文字数: {result.character_count}</span>
                                             </div>
-                                        )}
-                                        <div className="issue-rule">ルール: {issue.rule}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                            <div className="stat-item">
+                                                <span>行数: {result.line_count}</span>
+                                            </div>
+                                            <div className="stat-item">
+                                                <span>単語数: {result.word_count}</span>
+                                            </div>
+                                            <div className="stat-item">
+                                                <span>問題数: {result.issues.length}</span>
+                                            </div>
+                                        </div>
+                                    )}
 
-                        {result.status === 'success' && result.issues.length === 0 && (
-                            <div className="no-issues">
-                                <p>✨ 問題は見つかりませんでした！</p>
-                            </div>
-                        )}
-                    </div>
-                ))}
+                                    {result.status === 'error' && result.error_message && (
+                                        <div className="error-message">
+                                            <p>エラー: {result.error_message}</p>
+                                        </div>
+                                    )}
+
+                                    {result.issues.length > 0 && (
+                                        <div className="issues-list">
+                                            <h4>検出された問題</h4>
+                                            {result.issues.map((issue, issueIndex) => (
+                                                <div key={issueIndex} className="issue-item">
+                                                    <div className="issue-header">
+                                                        <span
+                                                            className="severity-icon"
+                                                            style={{ color: getSeverityColor(issue.severity) }}
+                                                        >
+                                                            {getSeverityIcon(issue.severity)}
+                                                        </span>
+                                                        <span className="issue-type">{issue.type}</span>
+                                                        <span className="issue-line">行 {issue.line}</span>
+                                                    </div>
+                                                    <div className="issue-message">{issue.message}</div>
+                                                    {issue.suggestion && (
+                                                        <div className="issue-suggestion">
+                                                            💡 提案: {issue.suggestion}
+                                                        </div>
+                                                    )}
+                                                    <div className="issue-rule">ルール: {issue.rule}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {result.status === 'success' && result.issues.length === 0 && (
+                                        <div className="no-issues">
+                                            <p>✨ 問題は見つかりませんでした！</p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
